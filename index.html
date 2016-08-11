@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>104年台灣薪資</title>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+
+<body>
+</body>
+  <script>
+    var s = d3.select('body')
+              .append('svg')
+              .attr({
+                'width':1250,// SVG Width
+                'height':3250// SVG Height
+              });
+
+    var dataset = [];
+  	d3.csv("data/salary.csv", function( data,i ) {
+      data.work = data.work;
+      data.x = i+1;
+      data.male = +data.male;
+      data.female = +data.female;
+      data.salaryMale = +data.salaryMale;
+      data.salaryFemale = +data.salaryFemale;
+      data.timeMale = +data.timeMale;
+      data.timeFemale = +data.timeFemale;
+      data.hourMale = data.salaryMale / data.timeMale;
+      data.hourFemale = data.salaryFemale / data.timeFemale;
+      data.w = data.hourMale;
+      dataset.push(data);
+      drawsvg();
+    }, function( error,rows ) {
+      if(error){
+          console.log('Error!!!');
+      }
+      else{
+        console.log(rows);
+      }
+    });
+
+    var drawsvg = function(){
+
+      s.selectAll('rect.men')
+       .data(dataset)
+       .enter()
+       .append('rect')
+       .attr( "class","men" )
+       .attr({
+        'fill':function(d){
+          //console.log( (d.hourMale > d.hourFemale) ? ">" : "<");
+          return (d.hourMale > d.hourFemale) ? '#80ccff' : '#ff80c3';
+        },
+        //'fill':'#80ccff',
+        'width':0,
+        'height':30,
+        'x':380,/////////////////
+        'y':function(d){
+          return (d.x-1) * 35;
+        }
+       })
+       .transition()
+       .duration(1500)
+       .attr({
+        'width':function(d){
+          return (d.hourMale > d.hourFemale) ? d.hourMale : d.hourFemale;
+        }
+       });
+
+      s.selectAll('rect.women')
+       .data(dataset)
+       .enter()
+       .append('rect')
+       .attr( "class","man" )
+       .attr({
+        //'fill':'#ff80c3',
+        'fill':function(d){
+          //console.log( (d.hourMale > d.hourFemale) ? ">" : "<");
+          return (d.hourMale > d.hourFemale) ? '#ff80c3' : '#80ccff';
+        },
+        'width':0,
+        'height':30,
+        'x':380,/////////////////
+        'y':function(d){
+          return (d.x-1) * 35;
+        }
+       })
+       .transition()
+       .duration(1500)
+       .attr({
+        'width':function(d){
+          return (d.hourMale > d.hourFemale) ? d.hourFemale : d.hourMale;
+        }
+       });
+
+      s.selectAll('text.work')
+       .data(dataset)
+       .enter()
+       .append('text')
+       .attr("class", "work")
+       .text(function(d){
+       	return d.work;
+       })
+       .attr({
+       	'x':30,
+       	'y':function(d){
+       		return d.x * 35 - 13;
+       	}
+       });
+
+      s.selectAll('text.numberMale')
+       .data(dataset)
+       .enter()
+       .append('text')
+       .attr( "class","numberMale" )
+       .text(function(d){
+        return 0;
+       })
+       .attr({
+        'fill':function(d){
+          return d.hourMale>d.hourFemale ? '#008ae6':'#ff66b8';
+        },
+        'x':380,//////////////////
+        'y':function(d){
+          return d.x * 35 - 13;
+        }
+       })
+       .transition()
+       .duration(1500)
+       .attr({
+        'x':function(d){
+          return (d.hourMale>d.hourFemale?d.hourMale:d.hourFemale) + 383;/////////////////
+        }
+       })
+       .tween('number',function(d){
+          var i = d3.interpolateRound(0, d.hourMale>d.hourFemale?d.hourMale:d.hourFemale);
+            return function(t) {
+            this.textContent = i(t);
+          };
+       });
+
+       s.selectAll('text.numberFemale')
+       .data(dataset)
+       .enter()
+       .append('text')
+       .attr( "class","numberFemale" )
+       .text(function(d){
+        return 0;
+        //d.hourMale>d.hourFemale?d.hourFemale:d.hourMale;
+        //d.hourFemale;
+       })
+       .attr({
+        'fill':function(d){
+          return d.hourMale>d.hourFemale ? '#ff66b8':'#008ae6';
+        },
+        'x':30,//////////////////
+        'y':function(d){
+          return d.x * 35 - 13;
+        }
+       })
+       .transition()
+       .duration(0)
+       .attr({
+        'x':function(d){
+          //return d.hourFemale + 23;/////////////////
+          return 348;
+        }
+       })
+       .tween('number',function(d){
+          var i = d3.interpolateRound(0, d.hourMale>d.hourFemale?d.hourFemale:d.hourMale);
+            return function(t) {
+            this.textContent = i(t);
+          };
+       });
+
+    };
+  </script>
+
+</html>
